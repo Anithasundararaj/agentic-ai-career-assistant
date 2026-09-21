@@ -22,7 +22,6 @@ client = genai.Client(
     api_key=GEMINI_API_KEY
 )
 
-
 SYSTEM_INSTRUCTIONS = """
 You are an intelligent Agentic AI Career Assistant.
 
@@ -87,7 +86,6 @@ Do not use tools unnecessarily.
 Always provide a natural helpful final response.
 """
 
-
 UPDATE_PROFILE = types.FunctionDeclaration(
     name="update_user_profile_tool",
     description=(
@@ -110,6 +108,7 @@ UPDATE_PROFILE = types.FunctionDeclaration(
         }
     )
 )
+
 
 
 STUDY_PLAN = types.FunctionDeclaration(
@@ -233,6 +232,7 @@ GEMINI_TOOLS = [
 ]
 
 
+
 def generate_response(contents):
 
     config = types.GenerateContentConfig(
@@ -246,6 +246,8 @@ def generate_response(contents):
         config=config
     )
 
+
+def format_study_plan(result):
 
     if not result.get("success"):
 
@@ -277,6 +279,9 @@ def generate_response(contents):
         lines.append("")
 
     return "\n".join(lines)
+
+
+
 
 def run_agent(user_input):
 
@@ -329,6 +334,7 @@ USER MESSAGE:
         )
     ]
 
+    # Agent can perform multiple tool-calling steps
     for _ in range(5):
 
         try:
@@ -344,6 +350,8 @@ USER MESSAGE:
                 f"```text\n{str(e)}\n```"
             )
 
+    
+
         if response.text:
 
             answer = response.text.strip()
@@ -355,6 +363,7 @@ USER MESSAGE:
 
             return answer
 
+       
 
         function_calls = []
 
@@ -374,12 +383,16 @@ USER MESSAGE:
                             part.function_call
                         )
 
+       
+
         if not function_calls:
 
             return (
                 "I couldn't generate a response. "
                 "Please try again."
             )
+
+      
 
         tool_results = []
 
@@ -404,7 +417,7 @@ USER MESSAGE:
 
                     st.json(arguments)
 
-         
+            # Execute selected tool
             result = execute_tool(
                 tool_name,
                 arguments,
@@ -423,7 +436,8 @@ USER MESSAGE:
                     "⚠️ Tool returned an issue"
                 )
 
-            
+          
+
             if (
                 tool_name == "create_study_plan"
                 and result.get("success")
@@ -440,10 +454,10 @@ USER MESSAGE:
 
                 return answer
 
+           
 
             if (
-                tool_name
-                == "update_user_profile_tool"
+                tool_name == "update_user_profile_tool"
                 and result.get("success")
             ):
 
@@ -466,6 +480,7 @@ USER MESSAGE:
 
                     return answer
 
+           
             tool_results.append(
                 {
                     "tool": tool_name,
@@ -474,6 +489,7 @@ USER MESSAGE:
             )
 
        
+
         contents.append(
             response.candidates[0].content
         )
