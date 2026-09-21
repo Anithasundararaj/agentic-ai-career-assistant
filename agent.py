@@ -18,19 +18,10 @@ from memory import (
 
 from tools import execute_tool
 
-
-# =========================================================
-# GEMINI CLIENT
-# =========================================================
-
 client = genai.Client(
     api_key=GEMINI_API_KEY
 )
 
-
-# =========================================================
-# SYSTEM INSTRUCTIONS
-# =========================================================
 
 SYSTEM_INSTRUCTIONS = """
 You are an intelligent Agentic AI Career Assistant.
@@ -96,10 +87,6 @@ Do not use tools unnecessarily.
 Always provide a natural helpful final response.
 """
 
-
-# =========================================================
-# TOOL DECLARATIONS
-# =========================================================
 
 UPDATE_PROFILE = types.FunctionDeclaration(
     name="update_user_profile_tool",
@@ -246,10 +233,6 @@ GEMINI_TOOLS = [
 ]
 
 
-# =========================================================
-# GEMINI RESPONSE
-# =========================================================
-
 def generate_response(contents):
 
     config = types.GenerateContentConfig(
@@ -263,12 +246,6 @@ def generate_response(contents):
         config=config
     )
 
-
-# =========================================================
-# STUDY PLAN FORMATTER
-# =========================================================
-
-def format_study_plan(result):
 
     if not result.get("success"):
 
@@ -300,11 +277,6 @@ def format_study_plan(result):
         lines.append("")
 
     return "\n".join(lines)
-
-
-# =========================================================
-# AGENT
-# =========================================================
 
 def run_agent(user_input):
 
@@ -372,10 +344,6 @@ USER MESSAGE:
                 f"```text\n{str(e)}\n```"
             )
 
-        # =================================================
-        # NORMAL ANSWER
-        # =================================================
-
         if response.text:
 
             answer = response.text.strip()
@@ -387,9 +355,6 @@ USER MESSAGE:
 
             return answer
 
-        # =================================================
-        # FIND TOOL CALL
-        # =================================================
 
         function_calls = []
 
@@ -426,10 +391,6 @@ USER MESSAGE:
                 function_call.args
             )
 
-            # ---------------------------------------------
-            # SHOW AGENT ACTIVITY
-            # ---------------------------------------------
-
             st.info(
                 f"🔧 Agent selected tool: "
                 f"`{tool_name}`"
@@ -443,10 +404,7 @@ USER MESSAGE:
 
                     st.json(arguments)
 
-            # ---------------------------------------------
-            # EXECUTE TOOL
-            # ---------------------------------------------
-
+         
             result = execute_tool(
                 tool_name,
                 arguments,
@@ -465,10 +423,7 @@ USER MESSAGE:
                     "⚠️ Tool returned an issue"
                 )
 
-            # ---------------------------------------------
-            # STUDY PLAN
-            # ---------------------------------------------
-
+            
             if (
                 tool_name == "create_study_plan"
                 and result.get("success")
@@ -485,9 +440,6 @@ USER MESSAGE:
 
                 return answer
 
-            # ---------------------------------------------
-            # PROFILE UPDATE
-            # ---------------------------------------------
 
             if (
                 tool_name
@@ -521,10 +473,7 @@ USER MESSAGE:
                 }
             )
 
-        # =================================================
-        # SEND TOOL RESULT BACK TO MODEL
-        # =================================================
-
+       
         contents.append(
             response.candidates[0].content
         )
